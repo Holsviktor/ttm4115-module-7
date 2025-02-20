@@ -5,7 +5,7 @@ from stmpy import Machine, Driver
 class Quizmaster:
 
     transition_list = [
-            {                           'source':'initial',     'target':'s_waiting', 'effect':'on_init; start_timer("timeout", 20_000)'}
+             {                          'source':'initial',     'target':'s_waiting', 'effect':'on_init; start_timer("timeout", 20_000)'}
             ,{'trigger':'buzz',         'source':'s_waiting',   'target':'s_buzzed',  'effect':'on_buzz; start_timer("answer_timer", 5000)'}
             ,{'trigger':'timeout',      'source':'s_waiting',   'target':'s_waiting', 'effect':'on_timeout; start_timer("timeout", 20_000)'}
             ,{'trigger':'buzz',         'source':'s_buzzed',    'target':'s_buzzed',  'effect':'on_buzz'}
