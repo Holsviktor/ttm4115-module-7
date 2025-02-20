@@ -12,6 +12,9 @@ class Quizmaster:
             ,{'trigger':'timeout',      'source':'s_buzzed',    'target':'s_buzzed',  'effect':''}
             ,{'trigger':'answer_timer', 'source':'s_buzzed',    'target':'s_waiting', 'effect':'answer_done; start_timer("timeout", 20_000)'}]
 
+    state_list = [
+            {'name' : 's_waiting',   'entry' : 'ask_question'}
+    ]
     def __init__(self, driver, client):
         self.driver = driver
         self.answerlist = []
@@ -22,7 +25,7 @@ class Quizmaster:
         self.client.connect("mqtt20.item.ntnu.no", 1883, 60)
         self.client.loop_start()
 
-        stm_quiz = Machine(transitions=Quizmaster.transition_list, obj=self, name='stm_quizmaster')
+        stm_quiz = Machine(transitions=Quizmaster.transition_list, states=Quizmaster.state_list, obj=self, name='stm_quizmaster')
         self.stm = stm_quiz
         self.driver.add_machine(self.stm)
 
@@ -39,15 +42,18 @@ class Quizmaster:
         print('Quizmaster spawned')
 
     def on_buzz(self):
-        print('buzz')
-        print(self.answerlist)
+        print(f'{self.answerlist[-1]} buzzed: {self.answerlist[0]} to answer.')
 
     def on_timeout(self):
         print('No answers given...')
 
     def answer_done(self):
-        print("Something happened to the answer")
+        print("Time's up! Next question: ")
         self.answerlist = []
+        self.client.publish('10/quiz', 'reset')
+
+    def ask_question(self):
+        print("What's up with birds?")
 
 
 try:
